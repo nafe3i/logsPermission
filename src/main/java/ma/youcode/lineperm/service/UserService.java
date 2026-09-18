@@ -1,101 +1,88 @@
 package ma.youcode.lineperm.service;
 
-import ma.youcode.lineperm.model.User;
-import org.mindrot.jbcrypt.BCrypt;
-import java.util.HashMap;
-import java.util.List;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.mindrot.jbcrypt.BCrypt;
+
+import ma.youcode.lineperm.model.User;
+
+/** Gere les comptes et la connexion. */
 public class UserService {
 
-    private final Path saveFile = Path.of("src/main/resources/users.txt");
-    private HashMap<String, User> users = new HashMap<>();
+    private final Map<String, User> utilisateurs = new HashMap<>();
+    private final Path fichierUtilisateurs = Path.of("users.txt");
 
     public UserService() {
-        load();
-        // System.out.println(users);
+        chargerUtilisateurs();
     }
 
-    public String signUp(String login, String password) {
-        if (login == null || password == null) {
+    public String inscrire(String login, String motDePasse) {
+        if (login == null || motDePasse == null) {
             return "Login et mot de passe ne peuvent pas etre vides.";
         }
 
-        String nettLogin = login.trim();
-
-        if (nettLogin.isEmpty() || password.isEmpty()) {
+        login = login.trim();
+        if (login.isEmpty() || motDePasse.isEmpty()) {
             return "Login et mot de passe ne peuvent pas etre vides.";
         }
-        if (nettLogin.contains(":")) {
-            return "Login ne peut pas contenir le caractere ':'.";
+        if (login.contains(" ") || login.contains(":")) {
+            return "Le login ne doit contenir ni espace ni caractere ':'.";
         }
-        if (nettLogin.contains(" ")) {
-            return "Login ne peut pas contenir le caractere ' '.";
-        }
-        if (users.containsKey(nettLogin)) {
+        if (chercherUtilisateur(login) != null) {
             return "L'utilisateur est deja enregistre.";
         }
 
-        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-        User user = new User(nettLogin, passwordHash);
-        System.out.println(user);
-        users.put(nettLogin, user);
-        save(user);
+        String motDePasseHache = BCrypt.hashpw(motDePasse, BCrypt.gensalt());
+        User nouvelUtilisateur = new User(login, motDePasseHache);
 
-        return "Compte cree avec succes.";
-    }
-
-    public String login(String login, String password) {
-
-        // boolean essay = false;
-        String logs;
-
-        if (!users.containsKey(login.trim())) {
-
-            logs = "Login ou mot de passe incorrect.";
-        } else {
-            User user = users.get(login.trim());
-
-            if (!BCrypt.checkpw(password, user.getPasswordHash())) {
-
-                logs = "Login ou mot de passe incorrect.";
-            } else {
-                logs = "Connexion reussie.";
-            }
-        }
-
-        return logs;
-    }
-
-    private void save(User user) {
         try {
-            String line = user.getLogin() + ":" + user.getPasswordHash() + System.lineSeparator();
-            Files.writeString(saveFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            String ligne = login + ":" + motDePasseHache + System.lineSeparator();
+            Files.writeString(fichierUtilisateurs, ligne, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            utilisateurs.put(login, nouvelUtilisateur);
+            return "Compte cree avec succes.";
         } catch (IOException e) {
-            System.out.println("Erreur lors de la sauvegarde : " + e.getMessage());
+            return "Erreur lors de la sauvegarde du compte.";
         }
     }
 
-    private void load() {
+    public boolean motDePasseCorrect(String login, String motDePasse) {
+        if (login == null || motDePasse == null) {
+            return false;
+        }
+
+        User utilisateur = chercherUtilisateur(login.trim());
+        if (utilisateur == null) {
+            return false;
+        }
+
+        return BCrypt.checkpw(motDePasse, utilisateur.getPasswordHash());
+    }
+
+    private User chercherUtilisateur(String login) {
+        return utilisateurs.get(login);
+    }
+
+    private void chargerUtilisateurs() {
+        if (!Files.exists(fichierUtilisateurs)) {
+            return;
+        }
+
         try {
-            if (!Files.exists(saveFile)) {
-                return;
-            }
-            List<String> lines = Files.readAllLines(saveFile);
-            for (String line : lines) {
-                String[] parts = line.split(":", 2);
-                User user = new User(parts[0], parts[1]);
-                users.put(parts[0], user);
+            List<String> lignes = Files.readAllLines(fichierUtilisateurs);
+            for (String ligne : lignes) {
+                String[] morceaux = ligne.split(":", 2);
+                if (morceaux.length == 2 && !utilisateurs.containsKey(morceaux[0])) {
+                    utilisateurs.put(morceaux[0], new User(morceaux[0], morceaux[1]));
+                }
             }
         } catch (IOException e) {
-            System.out.println("Erreur lors du chargement : " + e.getMessage());
+            System.out.println("Impossible de charger les utilisateurs.");
         }
     }
-
-    // public User getUser(String login) {
-    //     return users.get(login);
-    // }
 }

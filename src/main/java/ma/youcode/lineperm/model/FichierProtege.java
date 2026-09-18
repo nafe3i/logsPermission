@@ -1,67 +1,100 @@
 package ma.youcode.lineperm.model;
 
+/**
+ * Contient les informations d'un fichier et ses six droits.
+ * Cette classe ne lit ni n'ecrit sur le disque : elle garde seulement les donnees.
+ */
 public class FichierProtege {
 
-    private String name;
+    private String nom;
     private String proprietaire;
 
-    private final boolean ownerWrite = true;
-    private final boolean ownerReade = true;
-    private final boolean ownerDelete = true;
+    private boolean lectureProprietaire;
+    private boolean ecritureProprietaire;
+    private boolean suppressionProprietaire;
 
-    private boolean otherWrite = false;
-    private boolean otherReade = false;
-    private boolean otherDelete = false;
+    private boolean lectureAutres;
+    private boolean ecritureAutres;
+    private boolean suppressionAutres;
 
-    public FichierProtege(String name, String proprietaire) {
-        this.name = name;
+    /** Constructeur utilise quand un utilisateur cree un nouveau fichier. */
+    public FichierProtege(String nom, String proprietaire) {
+        this(nom, proprietaire, true, true, true, false, false, false);
+    }
+
+    /** Constructeur utilise au demarrage pour relire les droits sauvegardes. */
+    public FichierProtege(String nom, String proprietaire,
+            boolean lectureProprietaire, boolean ecritureProprietaire, boolean suppressionProprietaire,
+            boolean lectureAutres, boolean ecritureAutres, boolean suppressionAutres) {
+
+        this.nom = nom;
         this.proprietaire = proprietaire;
-        this.otherWrite = false;
-        this.otherReade = false;
-        this.otherDelete = false;
+        this.lectureProprietaire = lectureProprietaire;
+        this.ecritureProprietaire = ecritureProprietaire;
+        this.suppressionProprietaire = suppressionProprietaire;
+        this.lectureAutres = lectureAutres;
+        this.ecritureAutres = ecritureAutres;
+        this.suppressionAutres = suppressionAutres;
     }
 
-    public String getName() {
-        return name;
+    public String getNom() {
+        return nom;
     }
 
-    public String getOwner() {
+    public String getProprietaire() {
         return proprietaire;
     }
 
-    public boolean isOwnerWrite() {
-        return ownerWrite;
+    public boolean aDroitLectureProprietaire() {
+        return lectureProprietaire;
     }
 
-    public boolean isOwnerReade() {
-        return ownerReade;
+    public boolean aDroitEcritureProprietaire() {
+        return ecritureProprietaire;
     }
 
-    public boolean isOwnerDelete() {
-        return ownerDelete;
+    public boolean aDroitSuppressionProprietaire() {
+        return suppressionProprietaire;
     }
 
-    public boolean isOtherWrite() {
-        return otherWrite;
+    public boolean aDroitLectureAutres() {
+        return lectureAutres;
     }
 
-    public boolean isOtherReade() {
-        return otherReade;
+    public boolean aDroitEcritureAutres() {
+        return ecritureAutres;
     }
 
-    public boolean isOtherDelete() {
-        return otherDelete;
+    public boolean aDroitSuppressionAutres() {
+        return suppressionAutres;
     }
 
-    public void setOtherWrite(boolean value) {
-        this.otherWrite = value;
+    public void setDroitLectureAutres(boolean valeur) {
+        lectureAutres = valeur;
     }
 
-    public void setOtherReade(boolean value) {
-        this.otherReade = value;
+    public void setDroitEcritureAutres(boolean valeur) {
+        ecritureAutres = valeur;
     }
 
-    public void setOtherDelete(boolean value) {
-        this.otherDelete = value;
+    public void setDroitSuppressionAutres(boolean valeur) {
+        suppressionAutres = valeur;
+    }
+
+    /** Exemple de resultat : rwd|-w- */
+    public String getDroits() {
+        return getDroitsProprietaire() + "|" + getDroitsAutres();
+    }
+
+    public String getDroitsProprietaire() {
+        return "" + (lectureProprietaire ? 'r' : '-')
+                + (ecritureProprietaire ? 'w' : '-')
+                + (suppressionProprietaire ? 'd' : '-');
+    }
+
+    public String getDroitsAutres() {
+        return "" + (lectureAutres ? 'r' : '-')
+                + (ecritureAutres ? 'w' : '-')
+                + (suppressionAutres ? 'd' : '-');
     }
 }

@@ -2,33 +2,47 @@ package ma.youcode.lineperm.access;
 
 import ma.youcode.lineperm.model.FichierProtege;
 
+/** Classe qui decide uniquement si un droit est autorise ou non. */
 public class ControleAcces {
 
-    public static boolean estAutorise(String login, FichierProtege fichier, char droit) {
-        boolean isProprietaire = login.equals(fichier.getOwner());
+    public static boolean estProprietaire(String login, FichierProtege fichier) {
+        if (login == null || fichier == null) {
+            return false;
+        }
 
-        if (isProprietaire) {
-            switch (droit) {
-                case 'r':
-                    return fichier.isOwnerReade();
-                case 'w':
-                    return fichier.isOwnerWrite();
-                case 'd':
-                    return fichier.isOwnerDelete();
-                default:
-                    return false;
+        return login.equals(fichier.getProprietaire());
+    }
+
+    /**
+     * Un utilisateur utilise un seul bloc de droits : proprietaire OU autres.
+     */
+    public static boolean estAutorise(String login, FichierProtege fichier, char droit) {
+        if (login == null || fichier == null) {
+            return false;
+        }
+
+        if (estProprietaire(login, fichier)) {
+            if (droit == 'r') {
+                return fichier.aDroitLectureProprietaire();
+            }
+            if (droit == 'w') {
+                return fichier.aDroitEcritureProprietaire();
+            }
+            if (droit == 'd') {
+                return fichier.aDroitSuppressionProprietaire();
             }
         } else {
-            switch (droit) {
-                case 'r':
-                    return fichier.isOtherReade();
-                case 'w':
-                    return fichier.isOtherWrite();
-                case 'd':
-                    return fichier.isOtherDelete();
-                default:
-                    return false;
+            if (droit == 'r') {
+                return fichier.aDroitLectureAutres();
+            }
+            if (droit == 'w') {
+                return fichier.aDroitEcritureAutres();
+            }
+            if (droit == 'd') {
+                return fichier.aDroitSuppressionAutres();
             }
         }
+
+        return false;
     }
 }

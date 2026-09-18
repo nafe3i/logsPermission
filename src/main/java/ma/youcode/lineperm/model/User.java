@@ -1,17 +1,21 @@
 package ma.youcode.lineperm.model;
-public class User{
 
-    private final    String login;
-    private  final  String passwordHash;
+/** Represente un utilisateur en memoire. */
+public class User {
 
-    public User(String login,String password) {
+    private final String login;
+    private final String passwordHash;
+
+    public User(String login, String passwordHash) {
         this.login = login;
-        this.passwordHash = password;
-    }    
-    public String getLogin(){
+        this.passwordHash = passwordHash;
+    }
+
+    public String getLogin() {
         return login;
     }
-    public String getPasswordHash(){
+
+    public String getPasswordHash() {
         return passwordHash;
     }
 }
