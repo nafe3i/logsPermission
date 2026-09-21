@@ -1,13 +1,14 @@
 package ma.youcode.lineperm.model;
 
 /**
- * Contient les informations d'un fichier et ses six droits.
- * Cette classe ne lit ni n'ecrit sur le disque : elle garde seulement les donnees.
+ * Contient les informations d'un fichier et ses six droits. Cette classe ne lit
+ * ni n'ecrit sur le disque : elle garde seulement les donnees.
  */
 public class FichierProtege {
 
     private String nom;
-    private String proprietaire;
+    // private String proprietaire;
+    private int ownerId;
 
     private boolean lectureProprietaire;
     private boolean ecritureProprietaire;
@@ -17,18 +18,22 @@ public class FichierProtege {
     private boolean ecritureAutres;
     private boolean suppressionAutres;
 
-    /** Constructeur utilise quand un utilisateur cree un nouveau fichier. */
-    public FichierProtege(String nom, String proprietaire) {
-        this(nom, proprietaire, true, true, true, false, false, false);
+    /**
+     * Constructeur utilise quand un utilisateur cree un nouveau fichier.
+     */
+    public FichierProtege(String nom, int ownerId) {
+        this(nom, ownerId, true, true, true, false, false, false);
     }
 
-    /** Constructeur utilise au demarrage pour relire les droits sauvegardes. */
-    public FichierProtege(String nom, String proprietaire,
+    /**
+     * Constructeur utilise au demarrage pour relire les droits sauvegardes.
+     */
+    public FichierProtege(String nom, int ownerId,
             boolean lectureProprietaire, boolean ecritureProprietaire, boolean suppressionProprietaire,
             boolean lectureAutres, boolean ecritureAutres, boolean suppressionAutres) {
 
         this.nom = nom;
-        this.proprietaire = proprietaire;
+        this.ownerId = ownerId;
         this.lectureProprietaire = lectureProprietaire;
         this.ecritureProprietaire = ecritureProprietaire;
         this.suppressionProprietaire = suppressionProprietaire;
@@ -41,8 +46,8 @@ public class FichierProtege {
         return nom;
     }
 
-    public String getProprietaire() {
-        return proprietaire;
+    public int getOwnerId() {
+        return ownerId;
     }
 
     public boolean aDroitLectureProprietaire() {
@@ -81,7 +86,9 @@ public class FichierProtege {
         suppressionAutres = valeur;
     }
 
-    /** Exemple de resultat : rwd|-w- */
+    /**
+     * Exemple de resultat : rwd|-w-
+     */
     public String getDroits() {
         return getDroitsProprietaire() + "|" + getDroitsAutres();
     }
