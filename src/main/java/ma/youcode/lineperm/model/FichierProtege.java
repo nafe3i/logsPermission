@@ -41,7 +41,7 @@ public class FichierProtege {
         this.ecritureAutres = ecritureAutres;
         this.suppressionAutres = suppressionAutres;
     }
-
+    
     public String getNom() {
         return nom;
     }

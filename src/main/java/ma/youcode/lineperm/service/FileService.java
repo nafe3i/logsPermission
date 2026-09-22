@@ -26,7 +26,7 @@ public class FileService {
     public FileService() {
         chargerFichiers();
     }
-    LogAnalyzer logList = new LogAnalyzer();
+    // LogAnalyzer logList = new LogAnalyzer();
     // private final List<Log> logs = logList.getLlogs();
 
     /**
@@ -43,14 +43,14 @@ public class FileService {
     /**
      * touch <f>
      */
-    public String creerFichier(String nomFichier, String proprietaire) {
+    public String creerFichier(String nomFichier, int ownerId) {
         if (!nomEstValide(nomFichier)) {
 
-            crateLog(proprietaire, "create", nomFichier, false);
+            crateLog(ownerId, "create", nomFichier, false);
             return "Le nom de fichier est invalide ou contient un chemin.";
         }
         if (fichierExiste(nomFichier) || Files.exists(cheminDuFichier(nomFichier))) {
-            crateLog(proprietaire, "create", nomFichier, false);
+            crateLog(ownerId, "create", nomFichier, false);
             return "Le fichier existe deja.";
 
         }
@@ -59,13 +59,13 @@ public class FileService {
             Files.createDirectories(dossierData);
             Files.createFile(cheminDuFichier(nomFichier));
 
-            FichierProtege fichier = new FichierProtege(nomFichier, proprietaire);
+            FichierProtege fichier = new FichierProtege(nomFichier, ownerId);
             fichiers.put(nomFichier, fichier);
             sauvegarderDroits();
-            crateLog(proprietaire, "create", nomFichier, true);
+            crateLog(ownerId, "create", nomFichier, true);
             return "Fichier cree : " + nomFichier;
         } catch (IOException e) {
-            crateLog(proprietaire, "create", nomFichier, false);
+            crateLog(ownerId, "create", nomFichier, false);
             return ("Erreur lors de la creation du fichier" + e);
         }
     }
@@ -74,9 +74,9 @@ public class FileService {
      * cat <f>. null veut dire que la lecture est refusee. Une chaine vide reste
      * donc un fichier vide autorise.
      */
-    public String lireFichier(String nomFichier, String utilisateur) {
+    public String lireFichier(String nomFichier, int userId) {
         FichierProtege fichier = chercherFichier(nomFichier);
-        if (!ControleAcces.estAutorise(utilisateur, fichier, 'r')) {
+        if (!ControleAcces.estAutorise(userId, fichier, 'r')) {
             crateLog(utilisateur, "read", nomFichier, false);
             return null;
         }
@@ -290,7 +290,7 @@ public class FileService {
 
         for (FichierProtege fichier : fichiers.values()) {
             contenu.append(fichier.getNom()).append(";")
-                    .append(fichier.getProprietaire()).append(";")
+                    .append(fichier.getOwnerId()).append(";")
                     .append(fichier.getDroitsProprietaire()).append(";")
                     .append(fichier.getDroitsAutres()).append(System.lineSeparator());
         }
@@ -305,8 +305,8 @@ public class FileService {
     // Log log = new Log(proprietaire, "create", nomFichier, false);
 
     // logs.add (log);
-    private void crateLog(String user, String act, String nomFichier, boolean realiser) {
-        Log log = new Log(user, act, nomFichier, realiser);
+    private void crateLog(int userId, String act, String nomFichier, boolean realiser) {
+        Log log = new Log(userId, act, nomFichier, realiser);
         try {
             Files.writeString(fichierLogs, log.logLogContent() + System.lineSeparator(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
