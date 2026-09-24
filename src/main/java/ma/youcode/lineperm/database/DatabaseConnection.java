@@ -11,7 +11,6 @@ public final class DatabaseConnection {
     //     DatabaseConnection instance1 = DatabaseConnection.getInstance();
     //     System.out.println(instance1);
     // }
-
     private static DatabaseConnection instance;
     // private static boolean  createconn = false ;
 
@@ -21,7 +20,7 @@ public final class DatabaseConnection {
 
     private DatabaseConnection() {
         try {
-            connection = DriverManager.getConnection(URL);
+            this.connection = DriverManager.getConnection(URL);
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute("PRAGMA foreign_keys = ON");
@@ -30,6 +29,9 @@ public final class DatabaseConnection {
             System.out.println("Connexion SQLite réussie !");
             // createconn  = true;
         } catch (SQLException e) {
+            // throw new IllegalAccessException(
+            //         "impossible de demarrer sqlite", e
+            // );
             System.out.println("Impossible de se connecter à la base SQLite." + e.getMessage());
         }
     }
