@@ -11,6 +11,7 @@ import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 
 import ma.youcode.lineperm.model.User;
+import ma.youcode.lineperm.dao.UserDao;
 
 /** Gere les comptes et la connexion. */
 public class UserService {
@@ -42,9 +43,11 @@ public class UserService {
         User nouvelUtilisateur = new User(login, motDePasseHache);
 
         try {
-            String ligne = login + ":" + motDePasseHache + System.lineSeparator();
-            Files.writeString(fichierUtilisateurs, ligne, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            utilisateurs.put(login, nouvelUtilisateur);
+            // String ligne = login + ":" + motDePasseHache + System.lineSeparator();
+            // Files.writeString(fichierUtilisateurs, ligne, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            // utilisateurs.put(login, nouvelUtilisateur);
+            UserDao userDao = new UserDao();
+            userDao.save(nouvelUtilisateur);    
             return "Compte cree avec succes.";
         } catch (IOException e) {
             return "Erreur lors de la sauvegarde du compte.";

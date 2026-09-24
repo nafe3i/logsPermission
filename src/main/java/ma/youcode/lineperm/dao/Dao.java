@@ -4,7 +4,7 @@ import java.util.Optional;
 
 interface Dao<T> {
 
-    T save(T entity);
+    boolean save(T entity);
 
     Optional<T> findById(int id);
 
