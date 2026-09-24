@@ -5,16 +5,15 @@ import ma.youcode.lineperm.database.DatabaseConnection;
 
 public abstract class AbstractDao<T> implements Dao<T> {
 
-    protected DatabaseConnection databaseConnection;
+    // protected DatabaseConnection databaseConnection;
+    private Connection connection;
 
-    protected DatabaseConnection getInstance() {
-
-        this.databaseConnection = DatabaseConnection.getInstance();
-        return this.databaseConnection;
+    protected AbstractDao() {
+        this.connection = DatabaseConnection.getInstance().getConnection();
     }
 
     protected Connection getConnection() {
-        return getInstance().getConnection();
+        return connection;
     }
 
 }
