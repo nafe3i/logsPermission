@@ -16,7 +16,7 @@ public final class DatabaseConnection {
 
     private static final String URL = "jdbc:sqlite:database/linePermition.db";
 
-    private Connection connection;
+    private final Connection connection;
 
     private DatabaseConnection() {
         try {
@@ -26,13 +26,10 @@ public final class DatabaseConnection {
                 statement.execute("PRAGMA foreign_keys = ON");
             }
 
-            System.out.println("Connexion SQLite réussie !");
-            // createconn  = true;
         } catch (SQLException e) {
-            // throw new IllegalAccessException(
-            //         "impossible de demarrer sqlite", e
-            // );
-            System.out.println("Impossible de se connecter à la base SQLite." + e.getMessage());
+            throw new IllegalStateException(
+                    "Impossible de demarrer la connexion SQLite.", e
+            );
         }
     }
 

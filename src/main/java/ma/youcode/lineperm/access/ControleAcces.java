@@ -5,11 +5,11 @@ import ma.youcode.lineperm.model.FichierProtege;
 /** Classe qui decide uniquement si un droit est autorise ou non. */
 public class ControleAcces {
 
-    public static boolean estProprietaire(int userId, FichierProtege fichier) {
-        if (userId == null || fichier == null) {
+    public static boolean estProprietaire(String login, FichierProtege fichier) {
+        if (login == null || fichier == null) {
             return false;
         }
-        return login.equals(fichier.getOwnerId());
+        return login.equals(fichier.getProprietaire());
     }
 
     /**

@@ -29,6 +29,8 @@ public class LogAnalyzer {
     }
 
     private void chargerLogs() {
+        logs.clear();
+
         if (!Files.exists(fichierLogs)) {
             return;
         }
@@ -59,25 +61,28 @@ public class LogAnalyzer {
     }
 
     public long nombreTotalActions() {
-    
-        // return logs.stream().map(log -> log.getUtilisateur()).distinct().count();
+        chargerLogs();
         return logs.stream().count();
     }
 
     public long nombreAccesRefuse() {
+        chargerLogs();
         return logs.stream().filter(log -> !log.getResultat()).count();
     }
 
     public long nombreUserDistincts() {
+        chargerLogs();
         return logs.stream().map(Log::getUtilisateur).distinct().count();
     }
 
-    public Map nombreActionParUser() {
+    public Map<String, Long> nombreActionParUser() {
+        chargerLogs();
         Map< String, Long> actionsParUtilisateur = logs.stream().collect(Collectors.groupingBy(Log::getUtilisateur, Collectors.counting()));
         return actionsParUtilisateur;
     }
 
     public void topFichierConsulter() {
+        chargerLogs();
         logs.stream().collect(Collectors.groupingBy(Log::getFichier, Collectors.counting())).entrySet().stream().sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .limit(3)
                 .forEach(System.out::println);
@@ -92,10 +97,12 @@ public class LogAnalyzer {
     }
 
     public long accessRefuseUtilisateur(String nomUser) {
+        chargerLogs();
         return logs.stream().filter(log -> log.getUtilisateur().equals(nomUser) && !log.getResultat()).count();
     }
 
     public Optional<Map.Entry<String, Long>> actifUser() {
+        chargerLogs();
         Map<String, Long> userActif = logs.stream()
                 .collect(Collectors.groupingBy(
                         Log::getUtilisateur,
@@ -106,7 +113,8 @@ public class LogAnalyzer {
                 .max(Map.Entry.comparingByValue());
     }
 
-    public Map actionssParType() {
+    public Map<String, Long> actionssParType() {
+        chargerLogs();
         Map<String, Long> actionType = logs.stream().collect(Collectors.groupingBy(Log::getAction, Collectors.counting()));
         return actionType;
     }

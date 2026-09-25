@@ -7,8 +7,7 @@ package ma.youcode.lineperm.model;
 public class FichierProtege {
 
     private String nom;
-    // private String proprietaire;
-    private int ownerId;
+    private String proprietaire;
 
     private boolean lectureProprietaire;
     private boolean ecritureProprietaire;
@@ -21,19 +20,19 @@ public class FichierProtege {
     /**
      * Constructeur utilise quand un utilisateur cree un nouveau fichier.
      */
-    public FichierProtege(String nom, int ownerId) {
-        this(nom, ownerId, true, true, true, false, false, false);
+    public FichierProtege(String nom, String proprietaire) {
+        this(nom, proprietaire, true, true, true, false, false, false);
     }
 
     /**
      * Constructeur utilise au demarrage pour relire les droits sauvegardes.
      */
-    public FichierProtege(String nom, int ownerId,
+    public FichierProtege(String nom, String proprietaire,
             boolean lectureProprietaire, boolean ecritureProprietaire, boolean suppressionProprietaire,
             boolean lectureAutres, boolean ecritureAutres, boolean suppressionAutres) {
 
         this.nom = nom;
-        this.ownerId = ownerId;
+        this.proprietaire = proprietaire;
         this.lectureProprietaire = lectureProprietaire;
         this.ecritureProprietaire = ecritureProprietaire;
         this.suppressionProprietaire = suppressionProprietaire;
@@ -46,8 +45,8 @@ public class FichierProtege {
         return nom;
     }
 
-    public int getOwnerId() {
-        return ownerId;
+    public String getProprietaire() {
+        return proprietaire;
     }
 
     public boolean aDroitLectureProprietaire() {

@@ -6,22 +6,22 @@ import java.time.format.DateTimeFormatter;
 
 public class Log {
 
-    private int utilisateurId;
+    private String utilisateur;
     private String action;
     private String fichier;
     private boolean resultat;
     private LocalDate date = LocalDate.now();
     private String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
 
-    public Log(int utilisateurId, String action, String fichier, boolean resultat) {
-        this.utilisateurId = utilisateurId;
+    public Log(String utilisateur, String action, String fichier, boolean resultat) {
+        this.utilisateur = utilisateur;
         this.action = action;
         this.fichier = fichier;
         this.resultat = resultat;
     }
 
-    public Log(int utilisateurId, String action, String fichier, boolean resultat, LocalDate date, String time) {
-        this.utilisateurId = utilisateurId;
+    public Log(String utilisateur, String action, String fichier, boolean resultat, LocalDate date, String time) {
+        this.utilisateur = utilisateur;
         this.action = action;
         this.fichier = fichier;
         this.resultat = resultat;
@@ -29,8 +29,8 @@ public class Log {
         this.time = time;
     }
 
-    public int getUtilisateur() {
-        return utilisateurId;
+    public String getUtilisateur() {
+        return utilisateur;
     }
 
     public String getAction() {
@@ -60,6 +60,6 @@ public class Log {
     }
 
     public String logLogContent() {
-        return date + ";" + time + ";" + utilisateurId + ";" + action + ";" + fichier + ";" + getResultatConvert();
+        return date + ";" + time + ";" + utilisateur + ";" + action + ";" + fichier + ";" + getResultatConvert();
     }
 }

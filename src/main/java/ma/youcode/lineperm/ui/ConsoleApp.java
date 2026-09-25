@@ -136,13 +136,18 @@ public class ConsoleApp {
         if (login == null || motDePasse == null) {
             return;
         }
-        Optional<User> user = userService.motDePasseCorrect(login, motDePasse);
-        if (user.isPresent()) {
-            // utilisateurConnecte = login.trim();
-            utilisateurConnecte = user.get();
-            System.out.println("Bienvenue " + user.get().getLogin() + " !");
-        } else {
-            System.out.println("Login ou mot de passe incorrect.");
+        try {
+            Optional<User> user = userService.motDePasseCorrect(login, motDePasse);
+            if (user.isPresent()) {
+                utilisateurConnecte = user.get();
+                System.out.println("Bienvenue "
+                        + utilisateurConnecte.getLogin() + " !");
+            } else {
+                System.out.println("Login ou mot de passe incorrect.");
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            System.out.println("Erreur technique lors de la connexion.");
         }
     }
 
@@ -184,7 +189,8 @@ public class ConsoleApp {
             return;
         }
 
-        System.out.println(fileService.creerFichier(mots[1], utilisateurConnecte));
+        System.out.println(fileService.creerFichier(
+                mots[1], utilisateurConnecte.getLogin()));
     }
 
     private void gererLecture(String[] mots) {
@@ -199,7 +205,8 @@ public class ConsoleApp {
             return;
         }
 
-        String contenu = fileService.lireFichier(mots[1], utilisateurConnecte);
+        String contenu = fileService.lireFichier(
+                mots[1], utilisateurConnecte.getLogin());
         if (contenu == null) {
             System.out.println("Permission denied.");
             return;
@@ -224,7 +231,8 @@ public class ConsoleApp {
             System.out.println("Le fichier n'existe pas.");
             return;
         }
-        if (!fileService.peutEcrire(nomFichier, utilisateurConnecte)) {
+        if (!fileService.peutEcrire(
+                nomFichier, utilisateurConnecte.getLogin())) {
             System.out.println("Permission denied.");
             return;
         }
@@ -245,16 +253,19 @@ public class ConsoleApp {
         }
 
         System.out.println(fileService.ecrireFichier(
-                nomFichier, nouveauContenu.toString(), utilisateurConnecte));
+                nomFichier, nouveauContenu.toString(),
+                utilisateurConnecte.getLogin()));
     }
 
     private void afficherAncienContenu(String nomFichier) {
-        if (!fileService.peutLire(nomFichier, utilisateurConnecte)) {
+        if (!fileService.peutLire(
+                nomFichier, utilisateurConnecte.getLogin())) {
             System.out.println("Contenu actuel masque : edition a l'aveugle.");
             return;
         }
 
-        String ancienContenu = fileService.lireFichier(nomFichier, utilisateurConnecte);
+        String ancienContenu = fileService.lireFichier(
+                nomFichier, utilisateurConnecte.getLogin());
         if (ancienContenu != null && !ancienContenu.isEmpty()) {
             System.out.print(ancienContenu);
             if (!ancienContenu.endsWith(System.lineSeparator())) {
@@ -271,7 +282,8 @@ public class ConsoleApp {
             return;
         }
 
-        System.out.println(fileService.supprimerFichier(mots[1], utilisateurConnecte));
+        System.out.println(fileService.supprimerFichier(
+                mots[1], utilisateurConnecte.getLogin()));
     }
 
     private void gererChmod(String[] mots) {
@@ -303,7 +315,7 @@ public class ConsoleApp {
         }
 
         System.out.println(fileService.changerDroit(
-                mots[2], droit, accorder, utilisateurConnecte));
+                mots[2], droit, accorder, utilisateurConnecte.getLogin()));
     }
 
     private void gererStats() {
@@ -414,7 +426,7 @@ public class ConsoleApp {
     }
 
     private boolean estConnecte() {
-        if (utilisateurConnecte != 0) {
+        if (utilisateurConnecte != null) {
             return true;
         }
 
