@@ -2,10 +2,12 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 import java.util.Map;
+import java.util.Optional;
 import ma.youcode.lineperm.model.FichierProtege;
 import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.LogAnalyzer;
 import ma.youcode.lineperm.service.UserService;
+import ma.youcode.lineperm.model.User;
 
 /**
  * Interface texte de LinPerm.
@@ -17,7 +19,7 @@ public class ConsoleApp {
     private final FileService fileService = new FileService();
     private final LogAnalyzer logAnalyzer = new LogAnalyzer();
 
-    private String utilisateurConnecte = null;
+    private User utilisateurConnecte = null;
 
     public void run() {
         afficherBienvenue();
@@ -92,7 +94,7 @@ public class ConsoleApp {
         if (utilisateurConnecte == null) {
             System.out.print("linperm> ");
         } else {
-            System.out.print(utilisateurConnecte + "@linperm> ");
+            System.out.print(utilisateurConnecte.getLogin() + "@linperm> ");
         }
     }
 
@@ -134,10 +136,11 @@ public class ConsoleApp {
         if (login == null || motDePasse == null) {
             return;
         }
-
-        if (userService.motDePasseCorrect(login, motDePasse)) {
-            utilisateurConnecte = login.trim();
-            System.out.println("Bienvenue " + utilisateurConnecte + " !");
+        Optional<User> user = userService.motDePasseCorrect(login, motDePasse);
+        if (user.isPresent()) {
+            // utilisateurConnecte = login.trim();
+            utilisateurConnecte = user.get();
+            System.out.println("Bienvenue " + user.get().getLogin() + " !");
         } else {
             System.out.println("Login ou mot de passe incorrect.");
         }
@@ -411,7 +414,7 @@ public class ConsoleApp {
     }
 
     private boolean estConnecte() {
-        if (utilisateurConnecte != null) {
+        if (utilisateurConnecte != 0) {
             return true;
         }
 

@@ -6,7 +6,7 @@ import ma.youcode.lineperm.database.DatabaseConnection;
 public abstract class AbstractDao<T> implements Dao<T> {
 
     // protected DatabaseConnection databaseConnection;
-    private Connection connection;
+    private final Connection connection;
 
     protected AbstractDao() {
         this.connection = DatabaseConnection.getInstance().getConnection();
