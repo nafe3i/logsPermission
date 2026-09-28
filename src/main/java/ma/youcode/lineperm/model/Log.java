@@ -1,36 +1,71 @@
 package ma.youcode.lineperm.model;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Set;
 
+/**
+ * Represente un evenement d'audit de l'application.
+ *
+ * <p>Le login n'est pas stocke ici : la base conserve l'identifiant de
+ * l'utilisateur dans {@code logs.usId}. Le login pourra toujours etre retrouve
+ * par une jointure avec la table {@code users}.</p>
+ */
 public class Log {
 
-    private String utilisateur;
-    private String action;
-    private String fichier;
-    private boolean resultat;
-    private LocalDate date = LocalDate.now();
-    private String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
+    private static final Set<String> ACTIONS_AUTORISEES = Set.of(
+            "CREATE", "READ", "WRITE", "DELETE", "CHMOD"
+    );
 
-    public Log(String utilisateur, String action, String fichier, boolean resultat) {
-        this.utilisateur = utilisateur;
-        this.action = action;
-        this.fichier = fichier;
-        this.resultat = resultat;
+    private final int id;
+    private final int utilisateurId;
+    private final String action;
+    private final String fichier;
+    private final boolean resultatOk;
+
+    /**
+     * Constructeur utilise avant la sauvegarde. L'identifiant du log sera cree
+     * par SQLite.
+     */
+    public Log(int utilisateurId, String action, String fichier, boolean resultatOk) {
+        this(0, utilisateurId, action, fichier, resultatOk);
     }
 
-    public Log(String utilisateur, String action, String fichier, boolean resultat, LocalDate date, String time) {
-        this.utilisateur = utilisateur;
-        this.action = action;
+    /**
+     * Constructeur utilise par LogDao lorsqu'il relit un log existant.
+     */
+    public Log(int id, int utilisateurId, String action, String fichier, boolean resultatOk) {
+        if (utilisateurId <= 0) {
+            throw new IllegalArgumentException("L'identifiant utilisateur doit etre positif.");
+        }
+        if (fichier == null || fichier.isBlank()) {
+            throw new IllegalArgumentException("Le nom du fichier est obligatoire.");
+        }
+
+        String actionNormalisee = normaliserAction(action);
+        if (!ACTIONS_AUTORISEES.contains(actionNormalisee)) {
+            throw new IllegalArgumentException("Action de log invalide : " + action);
+        }
+
+        this.id = id;
+        this.utilisateurId = utilisateurId;
+        this.action = actionNormalisee;
         this.fichier = fichier;
-        this.resultat = resultat;
-        this.date = date;
-        this.time = time;
+        this.resultatOk = resultatOk;
     }
 
-    public String getUtilisateur() {
-        return utilisateur;
+    private String normaliserAction(String action) {
+        if (action == null) {
+            return "";
+        }
+        return action.trim().toUpperCase(Locale.ROOT);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getUtilisateurId() {
+        return utilisateurId;
     }
 
     public String getAction() {
@@ -41,25 +76,7 @@ public class Log {
         return fichier;
     }
 
-    public boolean getResultat() {
-        return resultat;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public String getResultatConvert() {
-        String resultatTexte = resultat ? "OK" : "REFUSE";
-        return resultatTexte;
-
-    }
-
-    public String logLogContent() {
-        return date + ";" + time + ";" + utilisateur + ";" + action + ";" + fichier + ";" + getResultatConvert();
+    public boolean isResultatOk() {
+        return resultatOk;
     }
 }

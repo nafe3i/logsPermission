@@ -1,13 +1,13 @@
 package ma.youcode.lineperm.ui;
 
-import java.util.Scanner;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Scanner;
 import ma.youcode.lineperm.model.FichierProtege;
+import ma.youcode.lineperm.model.User;
 import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.LogAnalyzer;
 import ma.youcode.lineperm.service.UserService;
-import ma.youcode.lineperm.model.User;
 
 /**
  * Interface texte de LinPerm.
@@ -176,8 +176,11 @@ public class ConsoleApp {
         }
 
         for (FichierProtege fichier : fileService.listerFichiers()) {
-            System.out.println(fichier.getDroits() + " "
-                    + fichier.getProprietaire() + " " + fichier.getNom());
+            System.out.println(
+                    fichier.getDroits() + " "
+                    + fileService.loginProprietaire(fichier) + " "
+                    + fichier.getNom()
+            );
         }
     }
 
@@ -189,8 +192,7 @@ public class ConsoleApp {
             return;
         }
 
-        System.out.println(fileService.creerFichier(
-                mots[1], utilisateurConnecte.getLogin()));
+        System.out.println(fileService.creerFichier(mots[1], utilisateurConnecte));
     }
 
     private void gererLecture(String[] mots) {
@@ -205,8 +207,7 @@ public class ConsoleApp {
             return;
         }
 
-        String contenu = fileService.lireFichier(
-                mots[1], utilisateurConnecte.getLogin());
+        String contenu = fileService.lireFichier(mots[1], utilisateurConnecte);
         if (contenu == null) {
             System.out.println("Permission denied.");
             return;
@@ -231,8 +232,7 @@ public class ConsoleApp {
             System.out.println("Le fichier n'existe pas.");
             return;
         }
-        if (!fileService.peutEcrire(
-                nomFichier, utilisateurConnecte.getLogin())) {
+        if (!fileService.peutEcrire(nomFichier, utilisateurConnecte)) {
             System.out.println("Permission denied.");
             return;
         }
@@ -252,20 +252,24 @@ public class ConsoleApp {
             nouveauContenu.append(ligne).append(System.lineSeparator());
         }
 
-        System.out.println(fileService.ecrireFichier(
-                nomFichier, nouveauContenu.toString(),
-                utilisateurConnecte.getLogin()));
+        System.out.println(
+                fileService.ecrireFichier(
+                        nomFichier,
+                        nouveauContenu.toString(),
+                        utilisateurConnecte
+                )
+        );
     }
 
     private void afficherAncienContenu(String nomFichier) {
         if (!fileService.peutLire(
-                nomFichier, utilisateurConnecte.getLogin())) {
+                nomFichier, utilisateurConnecte)) {
             System.out.println("Contenu actuel masque : edition a l'aveugle.");
             return;
         }
 
         String ancienContenu = fileService.lireFichier(
-                nomFichier, utilisateurConnecte.getLogin());
+                nomFichier, utilisateurConnecte);
         if (ancienContenu != null && !ancienContenu.isEmpty()) {
             System.out.print(ancienContenu);
             if (!ancienContenu.endsWith(System.lineSeparator())) {
@@ -283,7 +287,7 @@ public class ConsoleApp {
         }
 
         System.out.println(fileService.supprimerFichier(
-                mots[1], utilisateurConnecte.getLogin()));
+                mots[1], utilisateurConnecte));
     }
 
     private void gererChmod(String[] mots) {
@@ -315,7 +319,7 @@ public class ConsoleApp {
         }
 
         System.out.println(fileService.changerDroit(
-                mots[2], droit, accorder, utilisateurConnecte.getLogin()));
+                mots[2], droit, accorder, utilisateurConnecte));
     }
 
     private void gererStats() {
@@ -364,7 +368,17 @@ public class ConsoleApp {
 
                 case "5":
                     System.out.println("Top 3 des fichiers consultes :");
-                    logAnalyzer.topFichierConsulter();
+                    Map<String, Long> fichiersConsultes
+                            = logAnalyzer.topFichiersConsultes(3);
+                    if (fichiersConsultes.isEmpty()) {
+                        System.out.println("Aucune lecture reussie disponible.");
+                    } else {
+                        fichiersConsultes.forEach(
+                                (fichier, nombre) -> System.out.println(
+                                fichier + " : " + nombre
+                                )
+                        );
+                    }
                     break;
 
                 case "6":
@@ -372,7 +386,7 @@ public class ConsoleApp {
                     String nomUser = scanner.nextLine().trim();
 
                     long accesRefuses
-                            = logAnalyzer.accessRefuseUtilisateur(nomUser);
+                            = logAnalyzer.accesRefusesUtilisateur(nomUser);
 
                     System.out.println(
                             "Nombre d'acces refuses pour " + nomUser + " : "
@@ -383,7 +397,7 @@ public class ConsoleApp {
                 case "7":
                     System.out.println("Utilisateur le plus actif :");
 
-                    logAnalyzer.actifUser()
+                    logAnalyzer.utilisateurLePlusActif()
                             .ifPresentOrElse(
                                     entry -> System.out.println(
                                             entry.getKey() + " : " + entry.getValue()
@@ -394,7 +408,7 @@ public class ConsoleApp {
 
                 case "8":
                     Map<String, Long> actionsParType
-                            = logAnalyzer.actionssParType();
+                            = logAnalyzer.repartitionParAction();
 
                     actionsParType.forEach(
                             (action, nombre)

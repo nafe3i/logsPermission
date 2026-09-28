@@ -2,46 +2,51 @@ package ma.youcode.lineperm.access;
 
 import ma.youcode.lineperm.model.FichierProtege;
 
-/** Classe qui decide uniquement si un droit est autorise ou non. */
-public class ControleAcces {
+public final class ControleAcces {
 
-    public static boolean estProprietaire(String login, FichierProtege fichier) {
-        if (login == null || fichier == null) {
-            return false;
-        }
-        return login.equals(fichier.getProprietaire());
+    private ControleAcces() {
     }
 
-    /**
-     * Un utilisateur utilise un seul bloc de droits : proprietaire OU autres.
-     */
-    public static boolean estAutorise(String login, FichierProtege fichier, char droit) {
-        if (login == null || fichier == null) {
+    public static boolean estProprietaire(
+            int utilisateurId,
+            FichierProtege fichier
+    ) {
+        return utilisateurId > 0
+                && fichier != null
+                && utilisateurId == fichier.getProprietaireId();
+    }
+
+    public static boolean estAutorise(
+            int utilisateurId,
+            FichierProtege fichier,
+            char droit
+    ) {
+        if (utilisateurId <= 0 || fichier == null) {
             return false;
         }
 
-        if (estProprietaire(login, fichier)) {
-            if (droit == 'r') {
-                return fichier.aDroitLectureProprietaire();
-            }
-            if (droit == 'w') {
-                return fichier.aDroitEcritureProprietaire();
-            }
-            if (droit == 'd') {
-                return fichier.aDroitSuppressionProprietaire();
-            }
-        } else {
-            if (droit == 'r') {
-                return fichier.aDroitLectureAutres();
-            }
-            if (droit == 'w') {
-                return fichier.aDroitEcritureAutres();
-            }
-            if (droit == 'd') {
-                return fichier.aDroitSuppressionAutres();
-            }
+        if (estProprietaire(utilisateurId, fichier)) {
+            return switch (droit) {
+                case 'r' ->
+                    fichier.aDroitLectureProprietaire();
+                case 'w' ->
+                    fichier.aDroitEcritureProprietaire();
+                case 'd' ->
+                    fichier.aDroitSuppressionProprietaire();
+                default ->
+                    false;
+            };
         }
 
-        return false;
+        return switch (droit) {
+            case 'r' ->
+                fichier.aDroitLectureAutres();
+            case 'w' ->
+                fichier.aDroitEcritureAutres();
+            case 'd' ->
+                fichier.aDroitSuppressionAutres();
+            default ->
+                false;
+        };
     }
 }

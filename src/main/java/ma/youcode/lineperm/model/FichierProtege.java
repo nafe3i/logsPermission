@@ -6,8 +6,10 @@ package ma.youcode.lineperm.model;
  */
 public class FichierProtege {
 
+    private int id;
     private String nom;
-    private String proprietaire;
+    // private String proprietaire;
+    private int idOwner;
 
     private boolean lectureProprietaire;
     private boolean ecritureProprietaire;
@@ -20,19 +22,19 @@ public class FichierProtege {
     /**
      * Constructeur utilise quand un utilisateur cree un nouveau fichier.
      */
-    public FichierProtege(String nom, String proprietaire) {
-        this(nom, proprietaire, true, true, true, false, false, false);
+    public FichierProtege(String nom, int idOwner) {
+        this(0, nom, idOwner, true, true, true, false, false, false);
     }
 
     /**
      * Constructeur utilise au demarrage pour relire les droits sauvegardes.
      */
-    public FichierProtege(String nom, String proprietaire,
+    public FichierProtege(int id, String nom, int idOwner,
             boolean lectureProprietaire, boolean ecritureProprietaire, boolean suppressionProprietaire,
             boolean lectureAutres, boolean ecritureAutres, boolean suppressionAutres) {
-
+        this.id = id;
         this.nom = nom;
-        this.proprietaire = proprietaire;
+        this.idOwner = idOwner;
         this.lectureProprietaire = lectureProprietaire;
         this.ecritureProprietaire = ecritureProprietaire;
         this.suppressionProprietaire = suppressionProprietaire;
@@ -40,13 +42,13 @@ public class FichierProtege {
         this.ecritureAutres = ecritureAutres;
         this.suppressionAutres = suppressionAutres;
     }
-    
+
     public String getNom() {
         return nom;
     }
 
-    public String getProprietaire() {
-        return proprietaire;
+    public int getProprietaireId() {
+        return idOwner;
     }
 
     public boolean aDroitLectureProprietaire() {
@@ -102,5 +104,9 @@ public class FichierProtege {
         return "" + (lectureAutres ? 'r' : '-')
                 + (ecritureAutres ? 'w' : '-')
                 + (suppressionAutres ? 'd' : '-');
+    }
+
+    public int getId() {
+        return id;
     }
 }
