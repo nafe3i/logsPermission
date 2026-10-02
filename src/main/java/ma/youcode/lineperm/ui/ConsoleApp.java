@@ -232,7 +232,7 @@ public class ConsoleApp {
             System.out.println("Le fichier n'existe pas.");
             return;
         }
-        if (!fileService.peutEcrire(nomFichier, utilisateurConnecte)) {
+        if (!fileService.autoriserEdition(nomFichier, utilisateurConnecte)) {
             System.out.println("Permission denied.");
             return;
         }

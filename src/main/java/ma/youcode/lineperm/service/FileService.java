@@ -126,14 +126,23 @@ public class FileService {
                 .orElse(false);
     }
 
-    public boolean peutEcrire(String nomFichier, User utilisateur) {
-        return fileDao.findByName(nomFichier)
-                .map(fichier -> ControleAcces.estAutorise(
-                utilisateur.getId(),
-                fichier,
-                'w'
-        ))
-                .orElse(false);
+    /**
+     * Verifie le droit avant d'ouvrir une edition et journalise un refus.
+     */
+    public boolean autoriserEdition(String nomFichier, User utilisateur) {
+        if (utilisateur == null) {
+            return false;
+        }
+
+        Optional<FichierProtege> resultat = fileDao.findByName(nomFichier);
+        if (resultat.isEmpty() || !ControleAcces.estAutorise(
+                utilisateur.getId(), resultat.get(), 'w'
+        )) {
+            creerLog(utilisateur, "WRITE", nomFichier, false);
+            return false;
+        }
+
+        return true;
     }
 
     public String ecrireFichier(
